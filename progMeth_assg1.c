@@ -14,6 +14,7 @@ float X_VALUES[N], Y_VALUES[N], N_VALUES[N];
 
 void readDataFromFile();
 void plotGraph(float slope, float yIntercept);
+void plotHistogram();
 
 //swaps 2 elements
 void swap(float* a, float* b) 
@@ -26,47 +27,47 @@ void swap(float* a, float* b)
 //uses last element as the pivot
 //elements < pivot will be placed on the left of pivot
 //elements > pivot will be placed on the right of pivot
-int partition (float sortN[], int low, int high) 
+int partition (float sortValues[], int low, int high) 
 { 
-    float pivot = sortN[high];    // pivot 
+    float pivot = sortValues[high];    // pivot 
     int i = (low - 1);  // Index of smaller element 
   
     for (int j = low; j <= high- 1; j++) 
     { 
         //if current element is smaller than the pivot
-        if (sortN[j] < pivot) 
+        if (sortValues[j] < pivot) 
         { 
             i++;    //increment index of smaller element by one
-            swap(&sortN[i], &sortN[j]); 
+            swap(&sortValues[i], &sortValues[j]); 
         } 
     } 
-    swap(&sortN[i + 1], &sortN[high]); 
+    swap(&sortValues[i + 1], &sortValues[high]); 
     return (i + 1); 
 } 
   
 //sort N_VALUES using quicksort
 //low represents starting index and high is the ending index
-void quickSort(float sortN[], int low, int high) 
+void quickSort(float sortValues[], int low, int high) 
 { 
     if (low < high) 
     { 
-        //puts sortN[] in the right position
-        int partitioningIndex = partition(sortN, low, high); 
+        //puts sortValues[] in the right position
+        int partitioningIndex = partition(sortValues, low, high); 
   
         //Sort the elements before and after partition seperatelty
-        quickSort(sortN, low, partitioningIndex - 1); 
-        quickSort(sortN, partitioningIndex + 1, high); 
+        quickSort(sortValues, low, partitioningIndex - 1); 
+        quickSort(sortValues, partitioningIndex + 1, high); 
     } 
 } 
   
 // Function to print an array
-// void printArray(float sortN[], int size) 
-// { 
-//     int i; 
-//     for (i=0; i < size; i++) 
-//         printf("%f ", sortN[i]); 
-//     printf("n"); 
-// }
+void printArray(float sortValues[], int size) 
+{ 
+    int i; 
+    for (i=0; i < size; i++) 
+        printf("%f ", sortValues[i]); 
+    printf("n"); 
+}
 
 int main()
 {
@@ -129,16 +130,20 @@ int main()
     b1 = slopeNumer / slopeDenom;
     b0 = yMean - (b1*xMean);
 
-    //calculate the n variable
+    //calculate the n variables
     for (int i = 0; i < N; i++)
     {
         N_VALUES[i] = Y_VALUES[i] - (b1*X_VALUES[i]) -  b0;
-        //printf("The n varianle is: %0.2f \n", N_VALUES[i]);
     }
 
-    quickSort(N_VALUES, 0, N-1); 
+    //sort N_VALUES in ascending order using quicksort
+    quickSort(N_VALUES, 0, N-1);
+    quickSort(X_VALUES, 0, N-1);
+
+    //Get the minimum and maximum X_VALUES
+    float xMin = X_VALUES[0], xMax = X_VALUES[N];
     //printf("Sorted array: \n"); 
-    //printArray(N_VALUES, N); 
+    //printArray(X_VALUES, N); 
 
     printf("y = %0.2f + %0.2fx\n", b0, b1);
     printf("sum of x and y: %0.2f and %0.2f\n", sumX, sumY);
@@ -146,11 +151,11 @@ int main()
     printf("The correlation coefficient is %0.2f\n", correlationCoefficient);
     printf("The coefficient of determination is %0.2f%%\n", coefficientOfDetermination);
     printf("The standard error is %f\n", stdError);
-    printf("The numeration is %f and S^2 is %f\n", stdErrorNumer, stdErrorNumer/(N-2));
+    //printf("The numerator is %f and S^2 is %f\n", stdErrorNumer, stdErrorNumer/(N-2));
 
-    //plotGraph(b1, b0);
-    
-    
+    plotGraph(b1, b0);
+    plotHistogram();
+
     //calculate the time taken for the the program to run.
     clock_t end = clock();
     double progTime = (double) (end-begin)/CLOCKS_PER_SEC;
@@ -232,3 +237,29 @@ void plotGraph(float slope, float yIntercept)
     fclose(gp);
 
 }
+
+void plotHistogram ()
+{
+    // Plot graph
+    FILE *gp;
+    gp = popen(GNUPLOT, "w"); // pipe to gnuplot program
+    if (gp == NULL) {
+        printf("Error opening pipe to GNU plot.\n"
+            "Install with 'sudo apt-get install gnuplot' or 'brew install gnuplot'.\n");
+        exit(0);
+    }
+
+    // float n = 2000.00; //n is the number of intervals
+    // float binwidth = (max-min)/n;
+
+    fprintf(gp, "set style histogram rowstacked gap 0\n");
+    fprintf(gp, "set boxwidth 0.9 relative\n");
+    fprintf(gp, "set style data histograms\n");
+    fprintf(gp, "set style histograms cluster\n");
+    fprintf(gp, "plot for [COL=2:4:2] ’file.dat’ using COL");
+    fclose(gp);
+
+    // binwidth = <something> # set width of x values in each bin
+    // bin(val) = binwidth * floor(val/binwidth)
+    // plot "datafile" using (bin(column(1))):(1.0) smooth frequency
+    // plot "datafile" using (bin(column(1))) smooth frequency # same result

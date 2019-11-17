@@ -267,11 +267,6 @@ void plotHistogram (float Xmin, float Xmax, float Ymin)
     fprintf(gnup, "binwidth=%f\n", binwidth);
     fprintf(gnup, "set boxwidth binwidth\n");
     fprintf(gnup, "bin(x,width)=width*floor(x/width) + binwidth/2.0 \n");
-    fprintf(gnup, "plot 'values.dat' using (bin($1,binwidth)):(1.0) smooth freq with boxes\n");
+    fprintf(gnup, "plot '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes\n", DATASET_FILEPATH);
     fclose(gnup);
-
-    // binwidth = <something> # set width of x values in each bin
-    // bin(val) = binwidth * floor(val/binwidth)
-    // plot "datafile" using (bin(column(1))):(1.0) smooth frequency
-    // plot "datafile" using (bin(column(1))) smooth frequency # same result
 }

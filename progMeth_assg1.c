@@ -14,7 +14,7 @@ float X_VALUES[N], Y_VALUES[N], N_VALUES[N];
 
 void readDataFromFile();
 void plotGraph(float slope, float yIntercept);
-void plotHistogram();
+void plotHistogram (float Xmin, float Xmax, float Ymin);
 
 //swaps 2 elements
 void swap(float* a, float* b) 
@@ -136,14 +136,15 @@ int main()
         N_VALUES[i] = Y_VALUES[i] - (b1*X_VALUES[i]) -  b0;
     }
 
-    //sort N_VALUES in ascending order using quicksort
+    //sort N_VALUES, X_VALUES and Y_VALUES in ascending order using quicksort
     quickSort(N_VALUES, 0, N-1);
     quickSort(X_VALUES, 0, N-1);
+    quickSort(Y_VALUES, 0, N-1);
 
     //Get the minimum and maximum X_VALUES
-    float xMin = X_VALUES[0], xMax = X_VALUES[N];
+    float xMin = X_VALUES[0], xMax = X_VALUES[N], yMin = Y_VALUES[0];
     //printf("Sorted array: \n"); 
-    //printArray(X_VALUES, N); 
+    //printArray(Y_VALUES, N); 
 
     printf("y = %0.2f + %0.2fx\n", b0, b1);
     printf("sum of x and y: %0.2f and %0.2f\n", sumX, sumY);
@@ -153,8 +154,8 @@ int main()
     printf("The standard error is %f\n", stdError);
     //printf("The numerator is %f and S^2 is %f\n", stdErrorNumer, stdErrorNumer/(N-2));
 
-    plotGraph(b1, b0);
-    plotHistogram();
+    //plotGraph(b1, b0);
+    plotHistogram(xMin, xMax, yMin);
 
     //calculate the time taken for the the program to run.
     clock_t end = clock();
@@ -238,28 +239,39 @@ void plotGraph(float slope, float yIntercept)
 
 }
 
-void plotHistogram ()
+void plotHistogram (float Xmin, float Xmax, float Ymin)
 {
     // Plot graph
-    FILE *gp;
-    gp = popen(GNUPLOT, "w"); // pipe to gnuplot program
-    if (gp == NULL) {
+    FILE *gnup;
+    gnup = popen(GNUPLOT, "w"); // pipe to gnuplot program
+    if (gnup == NULL) {
         printf("Error opening pipe to GNU plot.\n"
             "Install with 'sudo apt-get install gnuplot' or 'brew install gnuplot'.\n");
         exit(0);
     }
 
-    // float n = 2000.00; //n is the number of intervals
-    // float binwidth = (max-min)/n;
+    float n = 2000.00; //n is the number of intervals
+    float binwidth = (Xmax-Xmin)/n;
 
-    fprintf(gp, "set style histogram rowstacked gap 0\n");
-    fprintf(gp, "set boxwidth 0.9 relative\n");
-    fprintf(gp, "set style data histograms\n");
-    fprintf(gp, "set style histograms cluster\n");
-    fprintf(gp, "plot for [COL=2:4:2] ’file.dat’ using COL");
-    fclose(gp);
+    fprintf(gnup, "set xrange[%f:%f]\n",Xmin, Xmax);
+    fprintf(gnup, "set yrange[%f:]\n", Ymin);
+    fprintf(gnup, "set xtics %f,%f,%f\n", Xmin, binwidth, Xmax);
+    fprintf(gnup, "set title 'Demo Graph'\n");
+    fprintf(gnup, "set xlabel 'Value'\n");
+    fprintf(gnup, "set ylabel 'Count'\n");
+    fprintf(gnup, "set terminal png enhanced font arial 14 size 800, 600\n");
+    fprintf(gnup, "ft='png'\n");
+    fprintf(gnup, "set output 'enes.'.ft\n");
+    fprintf(gnup, "set style histogram clustered gap 1\n");
+    fprintf(gnup, "set style fill solid border -1\n");
+    fprintf(gnup, "binwidth=%f\n", binwidth);
+    fprintf(gnup, "set boxwidth binwidth\n");
+    fprintf(gnup, "bin(x,width)=width*floor(x/width) + binwidth/2.0 \n");
+    fprintf(gnup, "plot 'values.dat' using (bin($1,binwidth)):(1.0) smooth freq with boxes\n");
+    fclose(gnup);
 
     // binwidth = <something> # set width of x values in each bin
     // bin(val) = binwidth * floor(val/binwidth)
     // plot "datafile" using (bin(column(1))):(1.0) smooth frequency
     // plot "datafile" using (bin(column(1))) smooth frequency # same result
+}

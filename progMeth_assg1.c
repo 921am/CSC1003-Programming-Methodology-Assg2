@@ -60,13 +60,13 @@ void quickSort(float sortN[], int low, int high)
 } 
   
 // Function to print an array
-void printArray(float sortN[], int size) 
-{ 
-    int i; 
-    for (i=0; i < size; i++) 
-        printf("%f ", sortN[i]); 
-    printf("n"); 
-}
+// void printArray(float sortN[], int size) 
+// { 
+//     int i; 
+//     for (i=0; i < size; i++) 
+//         printf("%f ", sortN[i]); 
+//     printf("n"); 
+// }
 
 int main()
 {
@@ -118,12 +118,12 @@ int main()
 
         // calculate the numerator & denominator of regression slope equation
         slopeNumer += xMinusXMean * yMinusYMean;
-        slopeDenom += pow(xMinusXMean, 2);
+        slopeDenom += pow(yMinusYMean, 2);
     }
 
     // calculate standard error
     stdErrorNumer = slopeDenom; // the numerator for the standard error equation is the same as the denominator of regression slope equation
-    stdError = sqrt(stdErrorNumer/(N-1));
+    stdError = sqrt(stdErrorNumer/(N-2));
 
     //calculate b0 (y-intercept) and b1 (slope) of regression line
     b1 = slopeNumer / slopeDenom;
@@ -137,17 +137,19 @@ int main()
     }
 
     quickSort(N_VALUES, 0, N-1); 
-    printf("Sorted array: \n"); 
-    printArray(N_VALUES, N); 
+    //printf("Sorted array: \n"); 
+    //printArray(N_VALUES, N); 
 
-    // printf("y = %0.2f + %0.2fx\n", b0, b1);
-    // printf("sum of x and y: %0.2f and %0.2f\n", sumX, sumY);
-    // printf("Mean of x and y: %0.2f and %0.2f\n", xMean, yMean);
-    // printf("The correlation coefficient is %0.2f\n", correlationCoefficient);
-    // printf("The coefficient of determination is %0.2f%%\n", coefficientOfDetermination);
-    // printf("The standard error is %f\n", stdError);
+    printf("y = %0.2f + %0.2fx\n", b0, b1);
+    printf("sum of x and y: %0.2f and %0.2f\n", sumX, sumY);
+    printf("Mean of x and y: %0.2f and %0.2f\n", xMean, yMean);
+    printf("The correlation coefficient is %0.2f\n", correlationCoefficient);
+    printf("The coefficient of determination is %0.2f%%\n", coefficientOfDetermination);
+    printf("The standard error is %f\n", stdError);
+    printf("The numeration is %f and S^2 is %f\n", stdErrorNumer, stdErrorNumer/(N-2));
 
     //plotGraph(b1, b0);
+    
     
     //calculate the time taken for the the program to run.
     clock_t end = clock();

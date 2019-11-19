@@ -93,8 +93,6 @@ int main()
     quickSort(N_VALUES, 0, N-1);
     storeDataToFile();
 
-    printf("stdErrorNumer: %f\n", stdErrorNumer);
-    printf("N-2: %d\n", N-2);
     printf("y = %0.2f + %0.2fx\n", b0, b1);
     printf("sum of x and y: %0.2f and %0.2f\n", sumX, sumY);
     printf("Mean of x and y: %0.2f and %0.2f\n", xMean, yMean);

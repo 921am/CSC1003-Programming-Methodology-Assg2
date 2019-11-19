@@ -202,6 +202,10 @@ void plotGraph(float slope, float yIntercept)
     fprintf(gp, "set boxwidth binwidth\n");
     fprintf(gp, "bin(x,width)=width*floor(x/width) + binwidth/2.0\n");
     fprintf(gp, "plot '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes\n", DATAWRITE_FILEPATH);
+
+    fprintf(gp, "Gauss(x,mu,sigma) = 1./(sigma*sqrt(2*pi)) * exp( -(x-mu)**2 / (2*sigma**2) )\n");
+    fprintf(gp, "d1(x) = Gauss(x,5,5.773794)=0.5\n");
+    fprintf(gp, "plot d1(x) title \"thing\",'%s' using (rounded($1)):(1) smooth frequency with boxes title \"thing2\"\n", DATAWRITE_FILEPATH);
     fclose(gp);
 }
 

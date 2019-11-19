@@ -6,9 +6,9 @@
 #define GNUPLOT "/usr/local/Cellar/gnuplot/5.2.7_1/bin/gnuplot -persist" // change this based on where your gnuplot executable file is located. To locate it, type `brew ls gnuplot` in the terminal
 #define N 10000 // The amount of values in the dataset
 
-char DATASET_FILEPATH[1000];
+char DATASET_FILEPATH[1000] = "/Users/magdalene/Desktop/SIT-UofG/programMeth/progMeth_assg1/Group9_15.txt";
 char DATAWRITE_FILEPATH [1000] = "/Users/magdalene/Desktop/SIT-UofG/programMeth/progMeth_assg2/nValues.txt";
-float X_VALUES[N], Y_VALUES[N], N_VALUES[N];
+float X_VALUES[N], Y_VALUES[N], Y2_VALUES[N], N_VALUES[N];
 
 void readDataFromFile();
 void storeDataToFile ();
@@ -71,24 +71,30 @@ int main()
         slopeDenom += pow(xMinusXMean, 2);
     }
 
-    // calculate standard error
-    stdErrorNumer = slopeDenom; // the numerator for the standard error equation is the same as the denominator of regression slope equation
-    stdError = sqrt(stdErrorNumer/(N-1));
-
     //calculate b0 (y-intercept) and b1 (slope) of regression line
     b1 = slopeNumer / slopeDenom;
     b0 = yMean - (b1*xMean);
 
-    //calculate the n variables
     for (int i = 0; i < N; i++)
     {
+        //calculation of standard error
+        Y2_VALUES[i] = (b1*X_VALUES[i]) + b0;
+
+        float YCorruptMinusYActual = Y_VALUES[i] - Y2_VALUES[i];
+        stdErrorNumer += pow(YCorruptMinusYActual, 2); 
+
         N_VALUES[i] = Y_VALUES[i] - (b1*X_VALUES[i]) -  b0;
     }
+
+    // calculate standard error
+    stdError = sqrt(stdErrorNumer/(N-2));
 
     //sort N_VALUES, X_VALUES and Y_VALUES in ascending order using quicksort
     quickSort(N_VALUES, 0, N-1);
     storeDataToFile();
 
+    printf("stdErrorNumer: %f\n", stdErrorNumer);
+    printf("N-2: %d\n", N-2);
     printf("y = %0.2f + %0.2fx\n", b0, b1);
     printf("sum of x and y: %0.2f and %0.2f\n", sumX, sumY);
     printf("Mean of x and y: %0.2f and %0.2f\n", xMean, yMean);
@@ -112,8 +118,8 @@ void readDataFromFile()
     //declare the delim
     const char delim[2] = ",";
 
-    printf("\nPlease enter the file path for your dataset: ");
-    scanf("%s", &DATASET_FILEPATH);
+    // printf("\nPlease enter the file path for your dataset: ");
+    // scanf("%s", &DATASET_FILEPATH);
     fptr = fopen(DATASET_FILEPATH, "r");
 
     // file path of Mag's desktop (file path for testing)- /Users/magdalene/Desktop/SIT-UofG/programMeth/progMeth_assg1/Group9_15.txt

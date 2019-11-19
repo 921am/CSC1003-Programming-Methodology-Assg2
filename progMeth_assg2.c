@@ -98,8 +98,7 @@ int main()
 
     //printArray(N_VALUES, N);
 
-    //plotGraph(b1, b0);
-    plotHistogram(X_VALUES[0], X_VALUES[N]);
+    plotGraph(b1, b0);
 
     return 0;
 }
@@ -191,11 +190,18 @@ void plotGraph(float slope, float yIntercept)
         exit(0);
     }
 
+    fprintf(gp, "set multiplot layout 2,1 columnsfirst\n");
+    
     fprintf(gp, "set datafile separator comma\n");
     fprintf(gp, "f(x) = m*x + b\n");
     fprintf(gp, "set fit quiet\n"); // disables automatic output values from GNUPlot
     fprintf(gp, "fit f(x) '%s' using 1:2 via m, b\n", DATASET_FILEPATH);
     fprintf(gp, "plot '%s', f(x) title 'Regression Line y=%0.2fx+%0.2f'\n", DATASET_FILEPATH, slope, yIntercept);
+    
+    fprintf(gp, "binwidth=0.5\n");
+    fprintf(gp, "set boxwidth binwidth\n");
+    fprintf(gp, "bin(x,width)=width*floor(x/width) + binwidth/2.0\n");
+    fprintf(gp, "plot '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes\n", DATAWRITE_FILEPATH);
     fclose(gp);
 }
 
@@ -250,25 +256,4 @@ void printArray(float sortValues[], int size)
     for (i=0; i < size; i++) 
         printf("%f ", sortValues[i]); 
     printf("n"); 
-}
-
-void plotHistogram (float Xmin, float Xmax)
-{
-    // Plot graph
-    FILE *gnup;
-    gnup = popen(GNUPLOT, "w"); // pipe to gnuplot program
-    if (gnup == NULL) {
-        printf("Error opening pipe to GNU plot.\n"
-            "Install with 'sudo apt-get install gnuplot' or 'brew install gnuplot'.\n");
-        exit(0);
-    }
-
-    float n = 2000.00; //n is the number of intervals
-    float binwidth = (Xmax-Xmin)/n;
-
-    fprintf(gnup, "binwidth=0.5\n");
-    fprintf(gnup, "set boxwidth binwidth\n");
-    fprintf(gnup, "bin(x,width)=width*floor(x/width) + binwidth/2.0\n");
-    fprintf(gnup, "plot '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes\n", DATAWRITE_FILEPATH);
-    fclose(gnup);
 }

@@ -202,7 +202,7 @@ void plotGraph(float slope, float yIntercept)
         exit(0);
     }
 
-    fprintf(gp, "set multiplot layout 2,1 columnsfirst\n");
+    fprintf(gp, "set multiplot layout 3,1 columnsfirst\n");
     
     fprintf(gp, "set datafile separator comma\n");
     fprintf(gp, "f(x) = m*x + b\n");
@@ -213,11 +213,11 @@ void plotGraph(float slope, float yIntercept)
     fprintf(gp, "binwidth=0.5\n");
     fprintf(gp, "set boxwidth binwidth\n");
     fprintf(gp, "bin(x,width)=width*floor(x/width) + binwidth/2.0\n");
-    //fprintf(gp, "plot '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes\n", DATAWRITE_FILEPATH);
+    fprintf(gp, "plot '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes\n", DATAWRITE_FILEPATH);
 
-    fprintf(gp, "Gauss(x,mu,sigma) = 1./(sigma*sqrt(2*pi)) * exp( -(x-mu)**2 / (2*sigma**2) )\n");
     fprintf(gp, "d1(x) = Gauss(x,-0.00054,6.051702)\n");
-    fprintf(gp, "plot '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes, d1(x) using (rounded($1)):(1) smooth frequency with boxes\n", DATAWRITE_FILEPATH);
+    fprintf(gp, "Gauss(x,mu,sigma) = 1./(sigma*sqrt(2*pi)) * exp( -(x-mu)**2 / (2*sigma**2) )\n");
+    fprintf(gp, "plot '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes, d1(x) (rounded($1)):(1) smooth frequency with boxes\n");
     fclose(gp);
 }
 

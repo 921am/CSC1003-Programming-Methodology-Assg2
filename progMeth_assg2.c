@@ -14,6 +14,7 @@ void readDataFromFile();
 void storeDataToFile ();
 
 void plotGraph(float slope, float yIntercept);
+void plotHistogram (float Xmin, float Xmax);
 
 void swap(float* a, float* b);
 void quickSort(float sortValues[], int low, int high);
@@ -86,6 +87,7 @@ int main()
 
     //sort N_VALUES, X_VALUES and Y_VALUES in ascending order using quicksort
     quickSort(N_VALUES, 0, N-1);
+    storeDataToFile();
 
     printf("y = %0.2f + %0.2fx\n", b0, b1);
     printf("sum of x and y: %0.2f and %0.2f\n", sumX, sumY);
@@ -96,7 +98,8 @@ int main()
 
     //printArray(N_VALUES, N);
 
-    plotGraph(b1, b0);
+    //plotGraph(b1, b0);
+    plotHistogram(X_VALUES[0], X_VALUES[N]);
 
     return 0;
 }
@@ -247,4 +250,25 @@ void printArray(float sortValues[], int size)
     for (i=0; i < size; i++) 
         printf("%f ", sortValues[i]); 
     printf("n"); 
+}
+
+void plotHistogram (float Xmin, float Xmax)
+{
+    // Plot graph
+    FILE *gnup;
+    gnup = popen(GNUPLOT, "w"); // pipe to gnuplot program
+    if (gnup == NULL) {
+        printf("Error opening pipe to GNU plot.\n"
+            "Install with 'sudo apt-get install gnuplot' or 'brew install gnuplot'.\n");
+        exit(0);
+    }
+
+    float n = 2000.00; //n is the number of intervals
+    float binwidth = (Xmax-Xmin)/n;
+
+    fprintf(gnup, "binwidth=0.5\n");
+    fprintf(gnup, "set boxwidth binwidth\n");
+    fprintf(gnup, "bin(x,width)=width*floor(x/width) + binwidth/2.0\n");
+    fprintf(gnup, "plot '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes\n", DATAWRITE_FILEPATH);
+    fclose(gnup);
 }

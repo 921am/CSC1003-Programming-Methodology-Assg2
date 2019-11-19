@@ -33,6 +33,8 @@ int main()
     // variables needed for calculating standard error
     float stdError, stdErrorNumer;
 
+    float sumN, nMean;
+
     for (int i = 0; i < N; i++)
     {
         float x = X_VALUES[i];
@@ -84,7 +86,12 @@ int main()
         stdErrorNumer += pow(YCorruptMinusYActual, 2); 
 
         N_VALUES[i] = Y_VALUES[i] - (b1*X_VALUES[i]) -  b0;
+        float n;
+        n = N_VALUES[i];
+        sumN += n;
     }
+
+    nMean = sumN / N;
 
     // calculate standard error
     stdError = sqrt(stdErrorNumer/(N-2));
@@ -99,6 +106,7 @@ int main()
     printf("The correlation coefficient is %0.2f\n", correlationCoefficient);
     printf("The coefficient of determination is %0.2f%%\n", coefficientOfDetermination);
     printf("The standard error is %f\n", stdError);
+    printf("The mean of N is %f\n", nMean);
 
     //printArray(N_VALUES, N);
 
@@ -205,11 +213,11 @@ void plotGraph(float slope, float yIntercept)
     fprintf(gp, "binwidth=0.5\n");
     fprintf(gp, "set boxwidth binwidth\n");
     fprintf(gp, "bin(x,width)=width*floor(x/width) + binwidth/2.0\n");
-    fprintf(gp, "plot '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes\n", DATAWRITE_FILEPATH);
+    //fprintf(gp, "plot '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes\n", DATAWRITE_FILEPATH);
 
     fprintf(gp, "Gauss(x,mu,sigma) = 1./(sigma*sqrt(2*pi)) * exp( -(x-mu)**2 / (2*sigma**2) )\n");
-    fprintf(gp, "d1(x) = Gauss(x,5,5.773794)=0.5\n");
-    fprintf(gp, "plot d1(x) title \"thing\",'%s' using (rounded($1)):(1) smooth frequency with boxes title \"thing2\"\n", DATAWRITE_FILEPATH);
+    fprintf(gp, "d1(x) = Gauss(x,-0.00054,6.051702)\n");
+    fprintf(gp, "plot '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes, d1(x) using (rounded($1)):(1) smooth frequency with boxes\n", DATAWRITE_FILEPATH);
     fclose(gp);
 }
 

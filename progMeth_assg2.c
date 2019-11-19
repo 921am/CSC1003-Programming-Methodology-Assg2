@@ -85,7 +85,8 @@ int main()
         float YCorruptMinusYActual = Y_VALUES[i] - Y2_VALUES[i];
         stdErrorNumer += pow(YCorruptMinusYActual, 2); 
 
-        N_VALUES[i] = Y_VALUES[i] - (b1*X_VALUES[i]) -  b0;
+        //calculation of N_VALUES
+        N_VALUES[i] = Y2_VALUES[i]-Y_VALUES[i];
         float n;
         n = N_VALUES[i];
         sumN += n;
@@ -100,14 +101,12 @@ int main()
     quickSort(N_VALUES, 0, N-1);
     storeDataToFile();
 
-    printf("y = %0.2f + %0.2fx\n", b0, b1);
+    printf("y = %fx + %f\n", b1, b0);
     printf("sum of x and y: %0.2f and %0.2f\n", sumX, sumY);
     printf("Mean of x and y: %0.2f and %0.2f\n", xMean, yMean);
     printf("The correlation coefficient is %0.2f\n", correlationCoefficient);
     printf("The coefficient of determination is %0.2f%%\n", coefficientOfDetermination);
     printf("The standard error is %f\n", stdError);
-    printf("The mean of N is %f\n", nMean);
-
     //printArray(N_VALUES, N);
 
     plotGraph(b1, b0);
@@ -202,22 +201,25 @@ void plotGraph(float slope, float yIntercept)
         exit(0);
     }
 
-    fprintf(gp, "set multiplot layout 3,1 columnsfirst\n");
+    fprintf(gp, "set multiplot layout 3,1 columnsfirst\n"); // set GNUPLOT to displat 3 graphs at one, in one column
     
+    //plot all 10 0000 points and regression line
     fprintf(gp, "set datafile separator comma\n");
     fprintf(gp, "f(x) = m*x + b\n");
     fprintf(gp, "set fit quiet\n"); // disables automatic output values from GNUPlot
     fprintf(gp, "fit f(x) '%s' using 1:2 via m, b\n", DATASET_FILEPATH);
     fprintf(gp, "plot '%s', f(x) title 'Regression Line y=%0.2fx+%0.2f'\n", DATASET_FILEPATH, slope, yIntercept);
     
+    //plot histogram
     fprintf(gp, "binwidth=0.5\n");
     fprintf(gp, "set boxwidth binwidth\n");
     fprintf(gp, "bin(x,width)=width*floor(x/width) + binwidth/2.0\n");
     fprintf(gp, "plot '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes\n", DATAWRITE_FILEPATH);
 
-    fprintf(gp, "d1(x) = Gauss(x,-0.00054,6.051702)\n");
+    //plot curve
+    fprintf(gp, "d1(x) = Gauss(x,0.00054,6.051702)\n");
     fprintf(gp, "Gauss(x,mu,sigma) = 1./(sigma*sqrt(2*pi)) * exp( -(x-mu)**2 / (2*sigma**2) )\n");
-    fprintf(gp, "plot '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes, d1(x) (rounded($1)):(1) smooth frequency with boxes\n");
+    fprintf(gp, "plot d1(x) (rounded(1)):(1) smooth frequency with boxes\n");
     fclose(gp);
 }
 

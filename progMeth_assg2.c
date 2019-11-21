@@ -6,11 +6,11 @@
 #define GNUPLOT "/usr/local/Cellar/gnuplot/5.2.7_1/bin/gnuplot -persist" // change this based on where your gnuplot executable file is located. To locate it, type `brew ls gnuplot` in the terminal
 #define N 10000 // The amount of values in the dataset
 
-char DATASET_FILEPATH[1000] = "/Users/magdalene/Desktop/SIT-UofG/programMeth/progMeth_assg1/Group9_15.txt";
-char DATAWRITE_FILEPATH [1000] = "/Users/magdalene/Desktop/SIT-UofG/programMeth/progMeth_assg2/nValues.txt";
+char DATASET_FILEPATH[1000]; // "/Users/magdalene/Desktop/SIT-UofG/programMeth/progMeth_assg1/Group9_15.txt";
+char DATAWRITE_FILEPATH [1000]; // "/Users/magdalene/Desktop/SIT-UofG/programMeth/progMeth_assg2/nValues.txt";
 float X_VALUES[N], Y_VALUES[N], Y2_VALUES[N], N_VALUES[N];
 
-void readDataFromFile();
+void readDataFromFile(); 
 void storeDataToFile ();
 
 void plotGraph(float slope, float yIntercept, float n_mean, float standardErr);
@@ -131,9 +131,9 @@ void readDataFromFile()
     //declare the delim
     const char delim[2] = ",";
 
-    // printf("\nNOTE: Please ensure that both your filepaths are seperated by a *SPACE*");
-    // printf("\nPlease enter the file paths to your dataset and an empty file: ");
-    // scanf("%s" "%s", &DATASET_FILEPATH, &DATAWRITE_FILEPATH);
+    printf("\nNOTE: Please ensure that both your filepaths are seperated by a *SPACE*");
+    printf("\nPlease enter the file paths to your dataset and an empty file: ");
+    scanf("%s" "%s", &DATASET_FILEPATH, &DATAWRITE_FILEPATH);
     read.fptr = fopen(DATASET_FILEPATH, "r");
 
     // file path of Mag's desktop (file path for testing)- /Users/magdalene/Desktop/SIT-UofG/programMeth/progMeth_assg1/Group9_15.txt
@@ -232,6 +232,7 @@ void plotGraph(float slope, float yIntercept, float n_mean, float standardErr)
     fclose(plot.fptr);
 }
 
+// functions for to quicksort values
 //swaps 2 elements
 void swap(float* a, float* b) 
 { 
@@ -246,19 +247,19 @@ void swap(float* a, float* b)
 int partition (float sortValues[], int low, int high) 
 { 
     float pivot = sortValues[high];    // pivot 
-    int i = (low - 1);  // Index of smaller element 
+    int smallerIndex = (low - 1);  // Index of smaller element 
   
     for (int j = low; j <= high- 1; j++) 
     { 
         //if current element is smaller than the pivot
         if (sortValues[j] < pivot) 
         { 
-            i++;    //increment index of smaller element by one
-            swap(&sortValues[i], &sortValues[j]); 
+            smallerIndex++;    //increment index of smaller element by one
+            swap(&sortValues[smallerIndex], &sortValues[j]); 
         } 
     } 
-    swap(&sortValues[i + 1], &sortValues[high]); 
-    return (i + 1); 
+    swap(&sortValues[smallerIndex + 1], &sortValues[high]); 
+    return (smallerIndex + 1); 
 } 
   
 //sort N_VALUES using quicksort
@@ -270,19 +271,8 @@ void quickSort(float sortValues[], int low, int high)
         //puts sortValues[] in the right position
         int partitioningIndex = partition(sortValues, low, high); 
   
-        //Sort the elements before and after partition seperatelty
+        // Sort the elements before and after partition, seperatelty
         quickSort(sortValues, low, partitioningIndex - 1); 
         quickSort(sortValues, partitioningIndex + 1, high); 
     } 
 } 
-  
-// Function to print an array
-void printArray(float sortValues[], int size) 
-{  
-    for (int i=0; i < size; i++) 
-    {
-        printf("%f ", sortValues[i]);
-    } 
-    
-    printf("n"); 
-}

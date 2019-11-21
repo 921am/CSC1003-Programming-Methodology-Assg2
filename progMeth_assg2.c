@@ -40,6 +40,7 @@ int main()
     // variables needed for calculating standard error
     float stdError, stdErrorNumer;
 
+    // variables needed for calculating Y2_VALUES
     float sumN, nMean;
 
     for (int i = 0; i < N; i++)
@@ -93,16 +94,16 @@ int main()
         stdErrorNumer += pow(YCorruptMinusYActual, 2); 
 
         //calculation of N_VALUES
-        N_VALUES[i] = Y2_VALUES[i]-Y_VALUES[i];
         float n;
+        N_VALUES[i] = Y2_VALUES[i]-Y_VALUES[i];
         n = N_VALUES[i];
         sumN += n;
     }
 
-    nMean = sumN / N;
-
     // calculate standard error
     stdError = sqrt(stdErrorNumer/(N-2));
+
+    nMean = sumN / N; // mean of all the N_VALUES
 
     //sort N_VALUES, X_VALUES and Y_VALUES in ascending order using quicksort
     quickSort(N_VALUES, 0, N-1);
@@ -240,8 +241,8 @@ void swap(float* a, float* b)
 } 
   
 //uses last element as the pivot
-//elements < pivot will be placed on the left of pivot
-//elements > pivot will be placed on the right of pivot
+//elements < pivot value will be placed on the left of pivot
+//elements > pivot value will be placed on the right of pivot
 int partition (float sortValues[], int low, int high) 
 { 
     float pivot = sortValues[high];    // pivot 
@@ -277,9 +278,11 @@ void quickSort(float sortValues[], int low, int high)
   
 // Function to print an array
 void printArray(float sortValues[], int size) 
-{ 
-    int i; 
-    for (i=0; i < size; i++) 
-        printf("%f ", sortValues[i]); 
+{  
+    for (int i=0; i < size; i++) 
+    {
+        printf("%f ", sortValues[i]);
+    } 
+    
     printf("n"); 
 }

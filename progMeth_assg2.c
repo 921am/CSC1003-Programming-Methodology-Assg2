@@ -2,13 +2,15 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <time.h>
 
 #define GNUPLOT "/usr/local/Cellar/gnuplot/5.2.7_1/bin/gnuplot -persist" // change this based on where your gnuplot executable file is located. To locate it, type `brew ls gnuplot` in the terminal
 #define N 10000 // The amount of values in the dataset
 
 char DATASET_FILEPATH[1000]; // "/Users/magdalene/Desktop/SIT-UofG/programMeth/progMeth_assg1/Group9_15.txt";
-char DATAWRITE_FILEPATH [1000]; // "/Users/magdalene/Desktop/SIT-UofG/programMeth/progMeth_assg2/nValues.txt";
+char DATAWRITE_FILEPATH [1000] = "N_VALUES.txt"; // "/Users/magdalene/Desktop/SIT-UofG/programMeth/progMeth_assg2/nValues.txt";
 float X_VALUES[N], Y_VALUES[N], Y2_VALUES[N], N_VALUES[N];
+double timeTaken;
 
 void readDataFromFile(); 
 void storeDataToFile ();
@@ -22,13 +24,20 @@ void printArray(float sortValues[], int size);
 
 struct open_files
 {
-    /* data */
     FILE *fptr;
 };
 
+struct timer
+{
+    clock_t begin, end;
+    double timeTaken;
+};
 
 int main()
 {
+    struct timer timeProg;
+    timeProg.begin = clock();
+
     readDataFromFile();
     
     // variables needed for calculating equation for the regression line
@@ -119,6 +128,10 @@ int main()
 
     plotGraph(b1, b0, nMean, stdError);
 
+    timeProg.end = clock();
+    timeProg.timeTaken = (double) (timeProg.end-timeProg.begin) / CLOCKS_PER_SEC;
+    printf("The program took: %lf seconds \n", timeProg.timeTaken);
+
     return 0;
 }
 
@@ -133,7 +146,7 @@ void readDataFromFile()
 
     printf("\nNOTE: Please ensure that both your filepaths are seperated by a *SPACE*");
     printf("\nPlease enter the file paths to your dataset and an empty file: ");
-    scanf("%s" "%s", &DATASET_FILEPATH, &DATAWRITE_FILEPATH);
+    scanf("%s", &DATASET_FILEPATH);
     read.fptr = fopen(DATASET_FILEPATH, "r");
 
     // file path of Mag's desktop (file path for testing)- /Users/magdalene/Desktop/SIT-UofG/programMeth/progMeth_assg1/Group9_15.txt
@@ -180,7 +193,6 @@ void readDataFromFile()
 void storeDataToFile ()
 {
     struct open_files store;
-
     store.fptr = fopen(DATAWRITE_FILEPATH, "w");
 
     // file path of Mag's desktop (file path for testing)- /Users/magdalene/Desktop/SIT-UofG/programMeth/progMeth_assg1/Group9_15.txt

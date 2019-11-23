@@ -22,11 +22,6 @@ void swap(float* a, float* b);
 void quickSort(float sortValues[], int low, int high);
 void printArray(float sortValues[], int size);
 
-struct open_files
-{
-    FILE *fptr;
-};
-
 struct timer
 {
     clock_t begin, end;
@@ -138,7 +133,7 @@ int main()
 void readDataFromFile()
 {
     char x[1000], *y, countChar;
-    struct open_files read;
+    FILE *fptr;
     int count = 0;
 
     //declare the delim
@@ -147,10 +142,10 @@ void readDataFromFile()
     printf("\nNOTE: Please ensure that both your filepaths are seperated by a *SPACE*");
     printf("\nPlease enter the file paths to your dataset and an empty file: ");
     scanf("%s", &DATASET_FILEPATH);
-    read.fptr = fopen(DATASET_FILEPATH, "r");
+    fptr = fopen(DATASET_FILEPATH, "r");
 
     // file path of Mag's desktop (file path for testing)- /Users/magdalene/Desktop/SIT-UofG/programMeth/progMeth_assg1/Group9_15.txt
-    if (read.fptr == NULL)
+    if (fptr == NULL)
     {
         printf("ERROR! Please try again. Unable to read the following file from path: %s", DATASET_FILEPATH);
         // Program exits if file pointer returns NULL.
@@ -167,7 +162,7 @@ void readDataFromFile()
         }
 
         //get the x coordinates and store in x
-        fscanf(read.fptr,"%10000s[^\n]", x);
+        fscanf(fptr,"%10000s[^\n]", x);
 
         //get the first token (getting the y coordinates)
         y = strtok(x, delim);
@@ -183,20 +178,20 @@ void readDataFromFile()
         X_VALUES[count] = (float)atof(x);
 
         //take next character from file.
-        countChar = getc(read.fptr);
+        countChar = getc(fptr);
     }
 
-    fclose(read.fptr); //close file.
+    fclose(fptr); //close file.
     //end of pulling coordinates from file
 }
 
 void storeDataToFile ()
 {
-    struct open_files store;
-    store.fptr = fopen(DATAWRITE_FILEPATH, "w");
+    FILE *fptr;
+    fptr = fopen(DATAWRITE_FILEPATH, "w");
 
     // file path of Mag's desktop (file path for testing)- /Users/magdalene/Desktop/SIT-UofG/programMeth/progMeth_assg1/Group9_15.txt
-    if (store.fptr == NULL)
+    if (fptr == NULL)
     {
         printf("ERROR! Please try again. Unable to read the following file from path: %s", DATAWRITE_FILEPATH);
         // Program exits if file pointer returns NULL.
@@ -205,43 +200,42 @@ void storeDataToFile ()
 
     for (int i = 0; i < N; i++)
     {
-        fprintf(store.fptr, "%f\n", N_VALUES[i]);
+        fprintf(fptr, "%f\n", N_VALUES[i]);
     }
 
-    fclose(store.fptr);
+    fclose(fptr);
 }
 
 void plotGraph(float slope, float yIntercept, float n_mean, float standardErr)
 {
     // Plot graph
-    struct open_files plot;
-    plot.fptr = popen(GNUPLOT, "w"); // pipe to gnuplot program
-    if (plot.fptr == NULL) {
+    FILE *fptr;
+    fptr = popen(GNUPLOT, "w"); // pipe to gnuplot program
+    if (fptr == NULL) {
         printf("Error opening pipe to GNU plot.\n"
             "Install with 'sudo apt-get install gnuplot' or 'brew install gnuplot'.\n");
         exit(0);
     }
 
-    fprintf(plot.fptr, "set multiplot layout 3,1 columnsfirst\n"); // set GNUPLOT to displat 3 graphs at one, in one column
+    fprintf(fptr, "set multiplot layout 2,1 columnsfirst\n"); // set GNUPLOT to displat 3 graphs at one, in one column
     
     //plot all 10 0000 points and regression line
-    fprintf(plot.fptr, "set datafile separator comma\n");
-    fprintf(plot.fptr, "f(x) = m*x + b\n");
-    fprintf(plot.fptr, "set fit quiet\n"); // disables automatic output values from GNUPlot
-    fprintf(plot.fptr, "fit f(x) '%s' using 1:2 via m, b\n", DATASET_FILEPATH);
-    fprintf(plot.fptr, "plot '%s', f(x) title 'Regression Line y=%0.2fx+%0.2f'\n", DATASET_FILEPATH, slope, yIntercept);
+    fprintf(fptr, "set datafile separator comma\n");
+    fprintf(fptr, "f(x) = m*x + b\n");
+    fprintf(fptr, "set fit quiet\n"); // disables automatic output values from GNUPlot
+    fprintf(fptr, "fit f(x) '%s' using 1:2 via m, b\n", DATASET_FILEPATH);
+    fprintf(fptr, "plot '%s', f(x) title 'Regression Line y=%0.2fx+%0.2f'\n", DATASET_FILEPATH, slope, yIntercept);
     
     //plot histogram
-    fprintf(plot.fptr, "binwidth=0.5\n");
-    fprintf(plot.fptr, "set boxwidth binwidth\n");
-    fprintf(plot.fptr, "bin(x,width)=width*floor(x/width) + binwidth/2.0\n");
-    fprintf(plot.fptr, "plot '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes\n", DATAWRITE_FILEPATH);
+    fprintf(fptr, "binwidth=0.5\n");
+    fprintf(fptr, "set boxwidth binwidth\n");
+    fprintf(fptr, "bin(x,width)=width*floor(x/width) + binwidth/2.0\n");
 
     //plot curve
-    fprintf(plot.fptr, "Gauss(x,mu,sigma) = 1./(sigma*sqrt(2*pi)) * exp( -(x-mu)**2 / (2*sigma**2) )\n");
-    fprintf(plot.fptr, "d1(x) = Gauss(x,'%f','%f')\n", n_mean, standardErr);
-    fprintf(plot.fptr, "plot d1(x) smooth frequency\n");
-    fclose(plot.fptr);
+    fprintf(fptr, "Gauss(x,mu,sigma) = 1./(sigma*sqrt(2*pi)) * exp( -(x-mu)**2 / (2*sigma**2) )\n");
+    fprintf(fptr, "d1(x) = Gauss(x,'%f','%f')*binwidth*'%d'\n", n_mean, standardErr,N);
+    fprintf(fptr, "plot d1(x), '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes\n", DATAWRITE_FILEPATH);
+    fclose(fptr);
 }
 
 // functions for to quicksort values

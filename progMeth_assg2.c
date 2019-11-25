@@ -91,11 +91,11 @@ int main()
 
     for (int i = 0; i < N; i++)
     {
-        //calculation of standard error
+        //calculate Y2_VALUES
         Y2_VALUES[i] = (b1*X_VALUES[i]) + b0;
 
-        float YCorruptMinusYActual = Y_VALUES[i] - Y2_VALUES[i];
-        stdErrorNumer += pow(YCorruptMinusYActual, 2); 
+        float yCorruptMinusYActual = Y_VALUES[i] - Y2_VALUES[i];
+        stdErrorNumer += pow(yCorruptMinusYActual, 2); 
 
         //calculation of N_VALUES
         float n;
@@ -139,8 +139,7 @@ void readDataFromFile()
     //declare the delim
     const char delim[2] = ",";
 
-    printf("\nNOTE: Please ensure that both your filepaths are seperated by a *SPACE*");
-    printf("\nPlease enter the file paths to your dataset and an empty file: ");
+    printf("\nPlease enter the file path to your dataset: ");
     scanf("%s", &DATASET_FILEPATH);
     fptr = fopen(DATASET_FILEPATH, "r");
 
@@ -233,7 +232,7 @@ void plotGraph(float slope, float yIntercept, float n_mean, float standardErr)
 
     //plot curve
     fprintf(fptr, "Gauss(x,mu,sigma) = 1./(sigma*sqrt(2*pi)) * exp( -(x-mu)**2 / (2*sigma**2) )\n");
-    fprintf(fptr, "d1(x) = Gauss(x,'%f','%f')*binwidth*'%d'\n", n_mean, standardErr,N);
+    fprintf(fptr, "d1(x) = Gauss(x,'%f','%f')*binwidth*'%d'\n", n_mean, standardErr,N); // multiply by N and binwidth to scale curve to histogram.
     fprintf(fptr, "plot d1(x), '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes\n", DATAWRITE_FILEPATH);
     fclose(fptr);
 }

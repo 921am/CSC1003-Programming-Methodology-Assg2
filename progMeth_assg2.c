@@ -117,6 +117,7 @@ int main()
     printf("The correlation coefficient is %0.2f\n", correlationCoefficient);
     printf("The coefficient of determination is %0.2f%%\n", coefficientOfDetermination);
     printf("The standard error is %f\n", stdError);
+    printf("The mean of all the n values is %f\n", nMean);
     //printArray(N_VALUES, N);
 
     plotGraph(b1, b0, nMean, stdError);

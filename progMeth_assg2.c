@@ -45,6 +45,8 @@ int main()
     // variables needed for calculating Y2_VALUES
     float sumN, nMean;
 
+    float deviationNumer, deviationDenom, varN, standardDeviation;
+
     for (int i = 0; i < N; i++)
     {
         float x = X_VALUES[i];
@@ -107,6 +109,16 @@ int main()
 
     nMean = sumN / N; // mean of all the N_VALUES
 
+    //calculation of standard deviation
+    for (int i = 0; i < N; i++)
+    {
+        float nMinusNmean = N_VALUES[i] - nMean;
+        deviationNumer += pow(nMinusNmean, 2); 
+    }
+
+    varN = deviationNumer / (N-1);
+    standardDeviation = sqrt(varN);
+
     //sort N_VALUES, X_VALUES and Y_VALUES in ascending order using quicksort
     quickSort(N_VALUES, 0, N-1);
     storeDataToFile();
@@ -117,6 +129,7 @@ int main()
     printf("The correlation coefficient is %0.2f\n", correlationCoefficient);
     printf("The coefficient of determination is %0.2f%%\n", coefficientOfDetermination);
     printf("The standard error is %f\n", stdError);
+    printf("The standard deviation based on n values is: %f \n", standardDeviation);
     printf("The mean of all the n values is %f\n", nMean);
     //printArray(N_VALUES, N);
 
@@ -232,6 +245,7 @@ void plotGraph(float slope, float yIntercept, float n_mean, float standardErr)
     //plot curve
     fprintf(fptr, "Gauss(x,mu,sigma) = 1./(sigma*sqrt(2*pi)) * exp( -(x-mu)**2 / (2*sigma**2) )\n");
     fprintf(fptr, "d1(x) = Gauss(x,'%f','%f')*binwidth*'%d'\n", n_mean, standardErr,N); // multiply by N and binwidth to scale curve to histogram.
+    fprintf(fptr, "set arrow from '%f', graph 0 to '%f', graph 1 nohead lw 2 lc rgb 'red'\n", n_mean, n_mean);
     fprintf(fptr, "plot d1(x), '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes\n", DATAWRITE_FILEPATH);
     fclose(fptr);
 }

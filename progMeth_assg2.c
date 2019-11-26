@@ -97,7 +97,7 @@ int main()
 
         //calculation of N_VALUES
         float n;
-        N_VALUES[i] = Y2_VALUES[i]-Y_VALUES[i];
+        N_VALUES[i] = Y_VALUES[i] - (b1*X_VALUES[i]) -  b0;
         n = N_VALUES[i];
         sumN += n;
     }

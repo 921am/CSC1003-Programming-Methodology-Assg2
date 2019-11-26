@@ -4,19 +4,20 @@
 #include <string.h>
 #include <time.h>
 
-#define GNUPLOT "/usr/local/Cellar/gnuplot/5.2.7_1/bin/gnuplot -persist" // change this based on where your gnuplot executable file is located. To locate it, type `brew ls gnuplot` in the terminal
+#define GNUPLOT "/usr/local/Cellar/gnuplot/5.2.7_1/bin/gnuplot -persist" // change this based on where your gnuexecutable file is located. To locate it, type `brew ls gnu in the terminal
 #define N 10000 // The amount of values in the dataset
 
 char DATASET_FILEPATH[1000]; // "/Users/magdalene/Desktop/SIT-UofG/programMeth/progMeth_assg1/Group9_15.txt";
-char DATAWRITE_FILEPATH [1000] = "N_VALUES.txt"; // "/Users/magdalene/Desktop/SIT-UofG/programMeth/progMeth_assg2/nValues.txt";
+char DATAWRITE_FILEPATH [1000] = "N_VALUES.txt";
 float X_VALUES[N], Y_VALUES[N], Y2_VALUES[N], N_VALUES[N];
-double timeTaken;
+
+// variables needed for calculating correlation coefficient & coefficient of determination
+float sumXY, sumXSq, sumYSq, sqSumX, sqSumY, correlationCoefficient, coefficientOfDetermination;
 
 void readDataFromFile(); 
 void storeDataToFile ();
 
 void plotGraph(float slope, float yIntercept, float n_mean, float standardErr);
-void plotHistogram (float Xmin, float Xmax);
 
 void swap(float* a, float* b);
 void quickSort(float sortValues[], int low, int high);
@@ -37,9 +38,6 @@ int main()
     
     // variables needed for calculating equation for the regression line
     float sumX = 0.0, sumY = 0.0, xMean, yMean, slopeNumer = 0.0, slopeDenom = 0.0, b0, b1;
-
-    // variables needed for calculating correlation coefficient & coefficient of determination
-    float sumXY, sumXSq, sumYSq, sqSumX, sqSumY, correlationCoefficient, coefficientOfDetermination;
     
     // variables needed for calculating standard error
     float stdError, stdErrorNumer;
@@ -91,11 +89,11 @@ int main()
 
     for (int i = 0; i < N; i++)
     {
-        //calculate Y2_VALUES
+        //calculation of standard error
         Y2_VALUES[i] = (b1*X_VALUES[i]) + b0;
 
-        float yCorruptMinusYActual = Y_VALUES[i] - Y2_VALUES[i];
-        stdErrorNumer += pow(yCorruptMinusYActual, 2); 
+        float YCorruptMinusYActual = Y_VALUES[i] - Y2_VALUES[i];
+        stdErrorNumer += pow(YCorruptMinusYActual, 2); 
 
         //calculation of N_VALUES
         float n;
@@ -207,16 +205,16 @@ void storeDataToFile ()
 
 void plotGraph(float slope, float yIntercept, float n_mean, float standardErr)
 {
-    // Plot graph
-    FILE *fptr;
+    // graph
+   FILE *fptr;
     fptr = popen(GNUPLOT, "w"); // pipe to gnuplot program
     if (fptr == NULL) {
-        printf("Error opening pipe to GNU plot.\n"
-            "Install with 'sudo apt-get install gnuplot' or 'brew install gnuplot'.\n");
+        printf("Error opening pipe to GNU \n"
+            "Install with 'sudo apt-get install gnu or 'brew install gnu.\n");
         exit(0);
     }
 
-    fprintf(fptr, "set multiplot layout 2,1 columnsfirst\n"); // set GNUPLOT to displat 3 graphs at one, in one column
+    fprintf(fptr, "set multiplot layout 2,1 columnsfirst\n"); // set GNUPLOT to display 2 graphs at once, in one column
     
     //plot all 10 0000 points and regression line
     fprintf(fptr, "set datafile separator comma\n");
@@ -280,4 +278,4 @@ void quickSort(float sortValues[], int low, int high)
         quickSort(sortValues, low, partitioningIndex - 1); 
         quickSort(sortValues, partitioningIndex + 1, high); 
     } 
-} 
+}

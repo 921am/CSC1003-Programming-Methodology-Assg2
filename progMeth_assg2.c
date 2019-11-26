@@ -235,6 +235,7 @@ void plotGraph(float slope, float yIntercept, float n_mean, float standardErr)
     fprintf(fptr, "f(x) = m*x + b\n");
     fprintf(fptr, "set fit quiet\n"); // disables automatic output values from GNUPlot
     fprintf(fptr, "fit f(x) '%s' using 1:2 via m, b\n", DATASET_FILEPATH);
+    fprintf(fptr, "set key title 'Linear Regression Graph'\n");
     fprintf(fptr, "plot '%s', f(x) title 'Regression Line y=%0.2fx+%0.2f'\n", DATASET_FILEPATH, slope, yIntercept);
     
     //plot histogram
@@ -243,10 +244,13 @@ void plotGraph(float slope, float yIntercept, float n_mean, float standardErr)
     fprintf(fptr, "bin(x,width)=width*floor(x/width) + binwidth/2.0\n");
 
     //plot curve
+    fprintf(fptr, "set arrow from '%f', graph 0 to '%f', graph 1 nohead lw 2 lc rgb 'red'\n", n_mean, n_mean);
+    fprintf(fptr, "set arrow from '%f', graph 0 to '%f', graph 1 nohead lw 2 lc rgb 'red'\n", (n_mean-standardErr), (n_mean-standardErr));
+    fprintf(fptr, "set arrow from '%f', graph 0 to '%f', graph 1 nohead lw 2 lc rgb 'red'\n", (n_mean+standardErr), (n_mean+standardErr));
     fprintf(fptr, "Gauss(x,mu,sigma) = 1./(sigma*sqrt(2*pi)) * exp( -(x-mu)**2 / (2*sigma**2) )\n");
     fprintf(fptr, "d1(x) = Gauss(x,'%f','%f')*binwidth*'%d'\n", n_mean, standardErr,N); // multiply by N and binwidth to scale curve to histogram.
-    fprintf(fptr, "set arrow from '%f', graph 0 to '%f', graph 1 nohead lw 2 lc rgb 'red'\n", n_mean, n_mean);
-    fprintf(fptr, "plot d1(x), '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes\n", DATAWRITE_FILEPATH);
+    fprintf(fptr, "set key title 'Histogram'\n");
+    fprintf(fptr, "plot d1(x), '%s' using (bin($1,binwidth)):(1.0) smooth freq with boxes lt rgb '#1b9646', '%s' using (bin($1,binwidth)):(1.0) smooth freq with line lt rgb '#000080'\n", DATAWRITE_FILEPATH, DATAWRITE_FILEPATH);
     fclose(fptr);
 }
 
@@ -258,7 +262,7 @@ void swap(float* a, float* b)
     *a = *b; 
     *b = t; 
 } 
-  
+
 //uses last element as the pivot
 //elements < pivot value will be placed on the left of pivot
 //elements > pivot value will be placed on the right of pivot
